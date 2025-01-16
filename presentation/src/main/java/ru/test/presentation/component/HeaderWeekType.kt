@@ -25,9 +25,8 @@ fun HeaderWeekType(
             text = type,
             modifier = modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(horizontal = 16.dp, vertical = 8.dp),
             style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold,
         )
     }
 }

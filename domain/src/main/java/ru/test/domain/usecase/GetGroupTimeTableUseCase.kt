@@ -8,6 +8,6 @@ class GetGroupTimeTableUseCase @Inject constructor(
     private val repository: VoguRepository
 ) {
 
-    suspend operator fun invoke(groupId: Int): List<Week> =
-        repository.getTimetableForGroup(groupId)
+    suspend operator fun invoke(): List<Week> =
+        repository.getTimetableForGroup()
 }

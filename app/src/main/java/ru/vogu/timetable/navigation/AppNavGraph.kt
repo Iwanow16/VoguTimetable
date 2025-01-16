@@ -24,14 +24,16 @@ fun AppNavGraph(
         modifier = modifier
     ) {
         composable(route = Screen.GroupSelection.route) {
-            SelectionScreen(modifier) {
-                println(it)
+            SelectionScreen {
+                navController.navigate(Screen.Timetable.route)
             }
         }
 
         composable(route = Screen.Timetable.route) {
-            TimetableScreen(modifier) {
-                println("BACK")
+            TimetableScreen {
+                navController.navigate(Screen.Timetable.route) {
+                    popUpTo(Screen.GroupSelection.route) { inclusive = true }
+                }
             }
         }
     }

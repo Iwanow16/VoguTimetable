@@ -24,8 +24,7 @@ fun HeaderDayDate(
         Text(
             text = date,
             modifier = modifier
-                .fillMaxWidth()
-                .padding(12.dp),
+                .fillMaxWidth(),
             style = MaterialTheme.typography.titleMedium,
         )
     }

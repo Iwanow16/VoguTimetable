@@ -14,7 +14,6 @@ import ru.test.data.storage.entities.WeekDb.Companion.WEEKS_TABLE_NAME
 data class WeekDb(
     @PrimaryKey(autoGenerate = true) val weekId: Int = 0,
     val type: String,
-//    val days: List<DayDb>
 ) {
     companion object {
         const val WEEKS_TABLE_NAME = "weeks_table"
@@ -26,7 +25,6 @@ data class DayDb(
     @PrimaryKey(autoGenerate = true) val dayId: Int = 0,
     val parentWeekId: Int,
     val date: String,
-//    val lessons: List<LessonDb>
 ) {
     companion object {
         const val DAYS_TABLE_NAME = "days_table"

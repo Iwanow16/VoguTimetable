@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
+import ru.test.data.network.mappers.InsertWeekModel
 import ru.test.data.storage.entities.CabinetDb
 import ru.test.data.storage.entities.DayDb
 import ru.test.data.storage.entities.GroupDb
@@ -20,19 +21,40 @@ interface VoguDao {
 
     @Transaction
     @Query("SELECT * FROM ${WeekDb.WEEKS_TABLE_NAME}")
-    fun getWeek(): List<WeekDb>
+    fun getWeek(): List<WeekWithDaysAndLessons>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertWeeks(vararg weeks: WeekDb): List<Long>
+    suspend fun insertWeek(week: WeekDb): Long
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertDays(vararg days: DayDb): List<Long>
+    suspend fun insertDay(day: DayDb): Long
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertLessons(vararg lessons: LessonDb)
+    suspend fun insertLesson(lesson: LessonDb)
+
+    @Transaction
+    suspend fun insertWeeksWithDaysAndLessons(weeksWithDaysAndLessons: InsertWeekModel) {
+        weeksWithDaysAndLessons.forEach { (week, daysWithLessons) ->
+            val weekId = insertWeek(week)
+            daysWithLessons.forEach { (day, lessons) ->
+                val newDay = day.copy(parentWeekId = weekId.toInt())
+                val dayId = insertDay(newDay)
+
+                lessons.forEach { lesson ->
+                    insertLesson(lesson.copy(parentDayId = dayId.toInt()))
+                }
+            }
+        }
+    }
 
     @Query("DELETE FROM ${WeekDb.WEEKS_TABLE_NAME}")
     fun deleteAllWeeks()
+
+    @Query("DELETE FROM ${DayDb.DAYS_TABLE_NAME}")
+    fun deleteAllDays()
+
+    @Query("DELETE FROM ${LessonDb.LESSONS_TABLE_NAME}")
+    fun deleteAllLessons()
 
     // Groups
 

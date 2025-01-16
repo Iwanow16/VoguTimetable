@@ -4,6 +4,8 @@ import android.text.Html
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
@@ -73,21 +75,31 @@ class VoguRepositoryImpl @Inject constructor(
             voguDao.insertGroups(groups)
             voguDao.insertTeachers(teachers)
             voguDao.insertCabinets(cabinets)
-
-            // Get csrf-token
-            val token = doc.selectFirst("input[name=csrfmiddlewaretoken]").attr("value")
-
-            // Save token
-            voguStore.saveCsrfToken(token)
         }
     }
+
+    override suspend fun saveGroupId(groupId: Int) {
+        voguStore.saveGroupId(groupId = groupId)
+    }
+
+    override suspend fun clearGroupId() {
+        voguStore.deleteGroupId()
+    }
+
 
     override suspend fun getGroupsFromCache(): List<Group> {
         return groupDbToDomainMapper.invoke(voguDao.getAllGroups())
     }
 
-    override suspend fun getTimetableForGroup(groupId: Int): List<Week> {
+    override suspend fun getTimetableForGroup(): List<Week> {
+
         if (internetChecker.isInternetAvailable()) {
+
+            voguDao.deleteAllWeeks()
+            voguDao.deleteAllDays()
+            voguDao.deleteAllLessons()
+
+            val groupId = voguStore.groupId.firstOrNull()
 
             val requestBody = mapOf(
                 "group_id" to groupId.toString(),
@@ -96,15 +108,20 @@ class VoguRepositoryImpl @Inject constructor(
                 "selected_lesson_type" to "typical"
             )
 
-            val response = voguService.getTimetable(requestBody).schedule
+//            val token = voguStore.csrfToken.firstOrNull().toString()
 
-            val weekDbList = response.map { weekDto ->
-                weekDtoToDbMapper(weekDto)
+            try {
+                voguService.getToken()
+
+                val response = voguService.getTimetable(requestBody).schedule
+                voguDao.insertWeeksWithDaysAndLessons(
+                    weekDtoToDbMapper.invoke(response)
+                )
+            } catch (e: Exception) {
+                println(e.stackTrace)
             }
-
-            voguDao.insertWeeks(*weekDbList.toTypedArray())
         }
 
-        return weekDbToDomainMapper.invoke(listOf())
+        return weekDbToDomainMapper.invoke(voguDao.getWeek())
     }
 }

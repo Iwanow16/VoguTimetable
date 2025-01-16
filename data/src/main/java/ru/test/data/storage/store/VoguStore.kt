@@ -21,7 +21,7 @@ class VoguStore @Inject constructor(
     // Keys
     companion object {
         private val CSRF_TOKEN = stringPreferencesKey("csrf_token")
-        private val TIMETABLE_ID = intPreferencesKey("timetable_id")
+        private val GROUP_ID = intPreferencesKey("group_id")
         private val TIMETABLE_TYPE = stringPreferencesKey("timetable_type")
         private val TIMETABLE_LESSON_TYPE = stringPreferencesKey("timetable_lesson_type")
     }
@@ -41,15 +41,21 @@ class VoguStore @Inject constructor(
         }
     }
 
-    // TIMETABLE ID
-    val timetableId: Flow<Int?> = dataStore.data
+    // GROUP ID
+    val groupId: Flow<Int?> = dataStore.data
         .map { preferences ->
-            preferences[TIMETABLE_ID]
+            preferences[GROUP_ID]
         }
 
-    suspend fun saveTimetableId(timetableId: Int) {
+    suspend fun saveGroupId(groupId: Int) {
         dataStore.edit { preferences ->
-            preferences[TIMETABLE_ID] = timetableId
+            preferences[GROUP_ID] = groupId
+        }
+    }
+
+    suspend fun deleteGroupId() {
+        dataStore.edit { preferences ->
+            preferences.remove(GROUP_ID)
         }
     }
 

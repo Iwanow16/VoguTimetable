@@ -1,5 +1,6 @@
 package ru.test.presentation.screen.timetable
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -22,10 +23,14 @@ class TimetableViewModel @Inject constructor(
     private val _weeks: MutableStateFlow<List<WeekUi>> = MutableStateFlow(emptyList())
     val weeks: StateFlow<List<WeekUi>> = _weeks.asStateFlow()
 
-    fun getTimetable(groupId: Int) {
-        viewModelScope.launch {
-            _weeks.value = getGroupTimeTableUseCase(groupId)
-                .map { weekToUiMapper.invoke(it) }
+    init {
+        try {
+            viewModelScope.launch {
+                _weeks.value = getGroupTimeTableUseCase()
+                    .map { weekToUiMapper.invoke(it) }
+            }
+        } catch (e: Exception) {
+            Log.e("ERROR", e.toString())
         }
     }
 }

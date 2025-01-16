@@ -4,19 +4,20 @@ android-minSdk = "24"
 android-targetSdk = "34"
 
 agp = "8.6.1"
-kotlin = "2.0.20"
+kotlin = "2.0.21"
 coreKtx = "1.15.0"
 lifecycleRuntimeKtx = "2.8.7"
-activityCompose = "1.9.3"
+activityCompose = "1.10.0"
 navigationCompose = "2.8.5"
-composeBom = "2024.12.01"
+composeBom = "2025.01.00"
 jetbrainsKotlinJvm = "1.9.0"
 javax-inject = "1"
 
 hiltNavigation = "1.2.0"
 ksp = "2.0.21-1.0.27"
-datastore = "1.1.1"
-retrofit = "2.3.0"
+datastore = "1.1.2"
+retrofit = "2.11.0"
+okhttp = "4.12.0"
 jsoup = "1.13.1"
 hilt = "2.51.1"
 room = "2.6.1"
@@ -24,6 +25,9 @@ room = "2.6.1"
 [libraries]
 retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
 retrofit-converter = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit" }
+
+okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
+okhttp-logging-interceptor = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp" }
 
 jsoup = { group = "org.jsoup", name = "jsoup", version.ref = "jsoup" }
 

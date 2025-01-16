@@ -7,7 +7,11 @@ interface VoguRepository {
 
     suspend fun parseData()
 
+    suspend fun saveGroupId(groupId: Int)
+
+    suspend fun clearGroupId()
+
     suspend fun getGroupsFromCache(): List<Group>
 
-    suspend fun getTimetableForGroup(groupId: Int): List<Week>
+    suspend fun getTimetableForGroup(): List<Week>
 }

@@ -23,41 +23,29 @@ import ru.test.presentation.models.WeekUi
 @Composable
 fun TimetableScreen(
     modifier: Modifier = Modifier,
-    groupId: Int,
     viewModel: TimetableViewModel = hiltViewModel<TimetableViewModel>(),
     onBackPressed: () -> Unit = {}
 ) {
     val weeks = viewModel.weeks.collectAsState(initial = emptyList()).value
 
-    viewModel.getTimetable(groupId = groupId)
-
     LazyColumn {
         weeks.forEach { week ->
             stickyHeader {
-                HeaderWeekType(
-                    type = week.type,
-                    modifier = modifier
-                )
+                HeaderWeekType(type = week.type)
             }
 
             week.days.forEach { (_, day) ->
                 item {
-                    HeaderDayDate(
-                        date = day.date,
-                        modifier = modifier
-                    )
+                    HeaderDayDate(date = day.date)
                 }
 
                 if (day.lessons.isEmpty()) {
                     item {
-                        EmptyLessonItem(modifier = modifier)
+                        EmptyLessonItem()
                     }
                 } else {
                     items(day.lessons) { lesson ->
-                        ItemLesson(
-                            lesson = lesson,
-                            modifier = modifier
-                        )
+                        ItemLesson(lesson = lesson)
                     }
                 }
             }
@@ -164,7 +152,7 @@ fun PreviewTimetableScreen() {
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
-            TimetableScreen(groupId = 0)
+            TimetableScreen()
         }
     }
 }
