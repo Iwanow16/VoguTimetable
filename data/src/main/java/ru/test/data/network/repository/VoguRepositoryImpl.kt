@@ -1,21 +1,11 @@
 package ru.test.data.network.repository
 
 import android.text.Html
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.withContext
-import org.jsoup.Jsoup
-import org.jsoup.nodes.Document
 import ru.test.data.network.mappers.WeekDtoToDbMapper
 import ru.test.data.network.services.VoguService
 import ru.test.data.network.utils.InternetChecker
 import ru.test.data.storage.dao.VoguDao
-import ru.test.data.storage.entities.CabinetDb
-import ru.test.data.storage.entities.GroupDb
-import ru.test.data.storage.entities.TeacherDb
 import ru.test.data.storage.mappers.GroupDbToDomainMapper
 import ru.test.data.storage.mappers.WeekDbToDomainMapper
 import ru.test.data.storage.store.VoguStore
@@ -39,43 +29,49 @@ class VoguRepositoryImpl @Inject constructor(
     }
 
     override suspend fun parseData() {
-        withContext(Dispatchers.IO) {
-            val url = "https://tt2.vogu35.ru/"
-            val doc: Document = Jsoup.connect(url).get()
+        /*
 
-            // Get json
-            val jsonGroups = decodeHtml(doc.getElementById("jsonGroups").attr("data-json"))
-            val jsonTeachers = decodeHtml(doc.getElementById("jsonTeachers").attr("data-json"))
-            val jsonLocations = decodeHtml(doc.getElementById("jsonLocations").attr("data-json"))
+                Стоит вынести в отдельный сервис
+                Для создания фоновой задачи и первого заполнения бд
 
-            val gson = Gson()
+                withContext(Dispatchers.IO) {
 
-            // Convert json to data class
-            val groups = gson.fromJson<List<GroupDb>>(
-                jsonGroups,
-                object : TypeToken<List<GroupDb>>() {}.type
-            )
+                    val url = "https://tt2.vogu35.ru/"
+                    val doc: Document = Jsoup.connect(url).get()
 
-            val teachers = gson.fromJson<List<TeacherDb>>(
-                jsonTeachers,
-                object : TypeToken<List<TeacherDb>>() {}.type
-            )
+                    // Get json
+                    val jsonGroups = decodeHtml(doc.getElementById("jsonGroups").attr("data-json"))
+                    val jsonTeachers = decodeHtml(doc.getElementById("jsonTeachers").attr("data-json"))
+                    val jsonLocations = decodeHtml(doc.getElementById("jsonLocations").attr("data-json"))
 
-            val cabinets = gson.fromJson<List<CabinetDb>>(
-                jsonLocations,
-                object : TypeToken<List<CabinetDb>>() {}.type
-            )
+                    val gson = Gson()
 
-            // Clear db
-            voguDao.deleteAllGroups()
-            voguDao.deleteAllTeachers()
-            voguDao.deleteAllCabinets()
+                    // Convert json to data class
+                    val groups = gson.fromJson<List<GroupDb>>(
+                        jsonGroups,
+                        object : TypeToken<List<GroupDb>>() {}.type
+                    )
 
-            // Insert db
-            voguDao.insertGroups(groups)
-            voguDao.insertTeachers(teachers)
-            voguDao.insertCabinets(cabinets)
-        }
+                    val teachers = gson.fromJson<List<TeacherDb>>(
+                        jsonTeachers,
+                        object : TypeToken<List<TeacherDb>>() {}.type
+                    )
+
+                    val cabinets = gson.fromJson<List<CabinetDb>>(
+                        jsonLocations,
+                        object : TypeToken<List<CabinetDb>>() {}.type
+                    )
+
+                    // Clear db
+                    voguDao.deleteAllGroups()
+                    voguDao.deleteAllTeachers()
+                    voguDao.deleteAllCabinets()
+
+                    // Insert db
+                    voguDao.insertGroups(groups)
+                    voguDao.insertTeachers(teachers)
+                    voguDao.insertCabinets(cabinets)
+                }*/
     }
 
     override suspend fun saveGroupId(groupId: Int) {
@@ -86,12 +82,24 @@ class VoguRepositoryImpl @Inject constructor(
         voguStore.deleteGroupId()
     }
 
-
-    override suspend fun getGroupsFromCache(): List<Group> {
-        return groupDbToDomainMapper.invoke(voguDao.getAllGroups())
+    override suspend fun getGroupsPaged(
+        query: String,
+        offset: Int,
+        pageSize: Int
+    ): List<Group> {
+        return groupDbToDomainMapper.invoke(
+            voguDao.getAllGroups(
+                query = query,
+                offset = offset,
+                pageSize = pageSize
+            )
+        )
     }
 
-    override suspend fun getTimetableForGroup(): List<Week> {
+    override suspend fun getTimetableForGroup(
+        dateStart: String,
+        dateEnd: String
+    ): List<Week> {
 
         if (internetChecker.isInternetAvailable()) {
 
@@ -103,12 +111,10 @@ class VoguRepositoryImpl @Inject constructor(
 
             val requestBody = mapOf(
                 "group_id" to groupId.toString(),
-                "date_start" to "2025-01-20",
-                "date_end" to "2025-1-30",
+                "date_start" to dateStart,
+                "date_end" to dateEnd,
                 "selected_lesson_type" to "typical"
             )
-
-//            val token = voguStore.csrfToken.firstOrNull().toString()
 
             try {
                 voguService.getToken()

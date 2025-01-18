@@ -11,7 +11,11 @@ interface VoguRepository {
 
     suspend fun clearGroupId()
 
-    suspend fun getGroupsFromCache(): List<Group>
+    suspend fun getGroupsPaged(
+        query: String,
+        offset: Int,
+        pageSize: Int
+    ): List<Group>
 
-    suspend fun getTimetableForGroup(): List<Week>
+    suspend fun getTimetableForGroup(dateStart: String, dateEnd: String): List<Week>
 }

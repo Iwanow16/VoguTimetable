@@ -10,7 +10,7 @@ import ru.test.presentation.screen.timetable.TimetableScreen
 
 sealed class Screen(val route: String) {
     data object GroupSelection : Screen("group_selection")
-    data object Timetable : Screen("timetable/{id}")
+    data object Timetable : Screen("timetable")
 }
 
 @Composable

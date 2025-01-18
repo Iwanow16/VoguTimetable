@@ -1,6 +1,10 @@
 package ru.test.presentation.component
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -9,82 +13,81 @@ import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import ru.test.presentation.models.GroupUi
+import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.flow.filter
+import ru.test.presentation.screen.selection.SelectionViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchDropdownMenu(
+    modifier: Modifier = Modifier,
     label: String,
-    groups: List<GroupUi>,
-    onGroupSelected: (Int) -> Unit
+    viewModel: SelectionViewModel,
+    onItemSelected: (Int) -> Unit
 ) {
-    var text by remember { mutableStateOf("") }
-
-    val filteredGroups = groups.filter {
-        it.name.contains(text, ignoreCase = true)
-    }
-
-    val (expanded, setExpanded) = remember { mutableStateOf(false) }
-    val isMenuExpanded = expanded && filteredGroups.isNotEmpty()
+    val items by viewModel.groups.collectAsState()
+    var expanded by remember { mutableStateOf(false) }
+    var searchQuery by remember { mutableStateOf("") }
+    val scrollState = rememberScrollState()
 
     ExposedDropdownMenuBox(
-        expanded = isMenuExpanded,
-        onExpandedChange = setExpanded,
+        expanded = expanded,
+        onExpandedChange = { expanded = it },
     ) {
         OutlinedTextField(
-            value = text,
+            value = searchQuery,
             onValueChange = {
-                text = it
-                setExpanded(true)
+                searchQuery = it
+                viewModel.setQuery(it)
             },
-            modifier = Modifier
-                .fillMaxWidth()
-                .menuAnchor(MenuAnchorType.PrimaryEditable),
             label = { Text(label) },
-            trailingIcon = {
-                ExposedDropdownMenuDefaults.TrailingIcon(expanded = isMenuExpanded)
-            },
-            colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
-            singleLine = true
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            singleLine = true,
+            modifier = modifier
+                .fillMaxWidth()
+                .menuAnchor(MenuAnchorType.PrimaryEditable)
         )
 
         ExposedDropdownMenu(
-            expanded = isMenuExpanded,
-            onDismissRequest = { setExpanded(false) }
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
         ) {
-            filteredGroups.forEach { group ->
-                DropdownMenuItem(
-                    text = { Text(group.name) },
-                    onClick = {
-                        text = group.name
-                        onGroupSelected(group.id)
-                        setExpanded(false)
-                    },
-                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
-                )
+            Column(
+                modifier = modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 300.dp)
+                    .verticalScroll(scrollState)
+            ) {
+                items.forEach { item ->
+                    DropdownMenuItem(
+                        text = { Text(item.name) },
+                        onClick = {
+                            searchQuery = item.name
+                            expanded = false
+                            onItemSelected(item.id)
+                        },
+                        contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                    )
+                }
+            }
+
+            LaunchedEffect(scrollState) {
+                snapshotFlow { scrollState.value }
+                    .filter { scrollValue ->
+                        scrollValue >= (scrollState.maxValue - scrollState.maxValue * 0.2f)
+                    }
+                    .collect {
+                        viewModel.loadNextPage()
+                    }
             }
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewSearchDropDownMenu() {
-    val sampleGroups = listOf(
-        GroupUi(1, "Option 1"),
-        GroupUi(2, "Яблоко"),
-        GroupUi(3, "Груша")
-    )
-
-    SearchDropdownMenu(
-        label = "TEST",
-        groups = sampleGroups,
-        onGroupSelected = {}
-    )
 }

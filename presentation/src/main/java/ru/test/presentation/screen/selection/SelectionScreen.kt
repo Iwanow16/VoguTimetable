@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -24,14 +23,12 @@ fun SelectionScreen(
     onTimetableClick: (groupId: Int) -> Unit = {},
 ) {
 
-    val groups = viewModel.groups.collectAsState(initial = emptyList())
-
     var selectedGroupId by remember { mutableIntStateOf(-1) }
 
     Column(modifier = modifier.padding(16.dp)) {
         SearchDropdownMenu(
             label = "Группа",
-            groups =groups.value,
+            viewModel = viewModel
         ) {
             selectedGroupId = it
             viewModel.saveGroupId(it)

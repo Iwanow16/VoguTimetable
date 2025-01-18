@@ -58,8 +58,24 @@ interface VoguDao {
 
     // Groups
 
-    @Query("SELECT * FROM ${GroupDb.GROUPS_TABLE_NAME}")
-    fun getAllGroups(): List<GroupDb>
+    @Query(
+        """
+        SELECT * FROM ${GroupDb.GROUPS_TABLE_NAME}
+        WHERE name LIKE '%' || :query || '%'
+        LIMIT :pageSize OFFSET :offset
+        """
+    )
+    suspend fun getAllGroups(
+        query: String,
+        offset: Int,
+        pageSize: Int
+    ): List<GroupDb>
+
+    @Transaction
+    fun updateGroups(groups: List<GroupDb>) {
+        deleteAllGroups()
+        insertGroups(groups)
+    }
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertGroups(groups: List<GroupDb>)
@@ -70,7 +86,13 @@ interface VoguDao {
     // Teachers
 
     @Query("SELECT * FROM ${TeacherDb.TEACHERS_TABLE_NAME}")
-    fun getAllTeachers(): List<TeacherDb>
+    suspend fun getAllTeachers(): List<TeacherDb>
+
+    @Transaction
+    fun updateTeachers(teachers: List<TeacherDb>) {
+        deleteAllTeachers()
+        insertTeachers(teachers)
+    }
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertTeachers(teachers: List<TeacherDb>)
@@ -81,7 +103,13 @@ interface VoguDao {
     // Cabinets
 
     @Query("SELECT * FROM ${CabinetDb.CABINETS_TABLE_NAME}")
-    fun getAllCabinets(): List<CabinetDb>
+    suspend fun getAllCabinets(): List<CabinetDb>
+
+    @Transaction
+    fun updateCabinets(cabinets: List<CabinetDb>) {
+        deleteAllCabinets()
+        insertCabinets(cabinets)
+    }
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertCabinets(cabinets: List<CabinetDb>)

@@ -8,14 +8,14 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import ru.test.domain.usecase.GetGroupTimeTableUseCase
+import ru.test.domain.usecase.GetTimeTableUseCase
 import ru.test.presentation.mappers.WeekToUiMapper
 import ru.test.presentation.models.WeekUi
 import javax.inject.Inject
 
 @HiltViewModel
 class TimetableViewModel @Inject constructor(
-    private val getGroupTimeTableUseCase: GetGroupTimeTableUseCase,
+    private val getGroupTimeTableUseCase: GetTimeTableUseCase,
     private val weekToUiMapper: WeekToUiMapper
 
 ) : ViewModel() {
