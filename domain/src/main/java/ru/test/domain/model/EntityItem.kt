@@ -1,6 +1,7 @@
 package ru.test.domain.model
 
-data class Group(
+data class EntityItem(
     val id: Int,
     val name: String
 )
+

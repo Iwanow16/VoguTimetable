@@ -41,19 +41,18 @@ class VoguStore @Inject constructor(
         }
     }
 
-    // GROUP ID
-    val groupId: Flow<Int?> = dataStore.data
+    val timetableId: Flow<Int?> = dataStore.data
         .map { preferences ->
             preferences[GROUP_ID]
         }
 
-    suspend fun saveGroupId(groupId: Int) {
+    suspend fun saveTimetableId(groupId: Int) {
         dataStore.edit { preferences ->
             preferences[GROUP_ID] = groupId
         }
     }
 
-    suspend fun deleteGroupId() {
+    suspend fun deleteTimetableId() {
         dataStore.edit { preferences ->
             preferences.remove(GROUP_ID)
         }

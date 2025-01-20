@@ -18,7 +18,7 @@ class TimetableTypeAdapter : TypeAdapter<TimetableDTO>() {
         reader.beginObject()
         var title = ""
         var searchFor = ""
-        var lastUpdate = ""
+        var lastUpdate: String? = null
         var examinationSession: String? = null
         var pedagogicalPractice: String? = null
         var schedule: List<WeekDTO> = emptyList()
@@ -27,7 +27,7 @@ class TimetableTypeAdapter : TypeAdapter<TimetableDTO>() {
             when (reader.nextName()) {
                 "title" -> title = reader.nextString()
                 "search_for" -> searchFor = reader.nextString()
-                "last_update" -> lastUpdate = reader.nextString()
+                "last_update" -> lastUpdate = readNullableString(reader)
                 "examination_session" -> examinationSession = readNullableString(reader)
                 "pedagogical_practice" -> pedagogicalPractice = readNullableString(reader)
                 "schedule" -> schedule = readSchedule(reader)

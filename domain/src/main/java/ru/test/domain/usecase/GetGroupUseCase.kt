@@ -1,22 +1,27 @@
 package ru.test.domain.usecase
 
-import ru.test.domain.model.Group
+import ru.test.domain.model.EntityType
+import ru.test.domain.model.EntityItem
 import ru.test.domain.repository.VoguRepository
 import javax.inject.Inject
 
-class GetGroupUseCase @Inject constructor(
+class GetEntityListByTypeUseCase @Inject constructor(
     private val repository: VoguRepository
 ) {
 
     suspend operator fun invoke(
         query: String,
         offset: Int,
-        pageSize: Int
-    ): List<Group> {
-        return repository.getGroupsPaged(
+        pageSize: Int,
+        type: EntityType
+    ): List<EntityItem> {
+
+
+        return repository.getEntitiesByTypePaged(
             query = query,
             offset = offset,
-            pageSize = pageSize
+            pageSize = pageSize,
+            type = type
         )
     }
 }

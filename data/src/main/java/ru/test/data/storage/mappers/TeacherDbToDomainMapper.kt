@@ -1,12 +1,12 @@
 package ru.test.data.storage.mappers
 
-import ru.test.data.storage.entities.GroupDb
+import ru.test.data.storage.entities.TeacherDb
 import ru.test.domain.model.EntityItem
 import javax.inject.Inject
 
-class GroupDbToDomainMapper @Inject constructor() : (List<GroupDb>) -> List<EntityItem> {
+class TeacherDbToDomainMapper @Inject constructor() : (List<TeacherDb>) -> List<EntityItem> {
 
-    override fun invoke(groups: List<GroupDb>): List<EntityItem> =
+    override fun invoke(groups: List<TeacherDb>): List<EntityItem> =
         groups.map { groupDb ->
             EntityItem(
                 id = groupDb.id,

@@ -1,21 +1,26 @@
 package ru.test.domain.repository
 
-import ru.test.domain.model.Group
+import ru.test.domain.model.EntityType
+import ru.test.domain.model.EntityItem
 import ru.test.domain.model.Week
 
 interface VoguRepository {
 
     suspend fun parseData()
 
-    suspend fun saveGroupId(groupId: Int)
+    suspend fun saveTimetableConfig(
+        timetableId: Int,
+        type: EntityType
+    )
 
     suspend fun clearGroupId()
 
-    suspend fun getGroupsPaged(
+    suspend fun getEntitiesByTypePaged(
         query: String,
         offset: Int,
-        pageSize: Int
-    ): List<Group>
+        pageSize: Int,
+        type: EntityType
+    ): List<EntityItem>
 
     suspend fun getTimetableForGroup(dateStart: String, dateEnd: String): List<Week>
 }

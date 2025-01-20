@@ -65,7 +65,7 @@ interface VoguDao {
         LIMIT :pageSize OFFSET :offset
         """
     )
-    suspend fun getAllGroups(
+    suspend fun getParsedGroups(
         query: String,
         offset: Int,
         pageSize: Int
@@ -85,8 +85,16 @@ interface VoguDao {
 
     // Teachers
 
-    @Query("SELECT * FROM ${TeacherDb.TEACHERS_TABLE_NAME}")
-    suspend fun getAllTeachers(): List<TeacherDb>
+    @Query("""
+        SELECT * FROM ${TeacherDb.TEACHERS_TABLE_NAME}
+        WHERE name LIKE '%' || :query || '%'
+        LIMIT :pageSize OFFSET :offset
+        """)
+    suspend fun getParsedTeachers(
+        query: String,
+        offset: Int,
+        pageSize: Int
+    ): List<TeacherDb>
 
     @Transaction
     fun updateTeachers(teachers: List<TeacherDb>) {
@@ -102,8 +110,16 @@ interface VoguDao {
 
     // Cabinets
 
-    @Query("SELECT * FROM ${CabinetDb.CABINETS_TABLE_NAME}")
-    suspend fun getAllCabinets(): List<CabinetDb>
+    @Query("""
+        SELECT * FROM ${CabinetDb.CABINETS_TABLE_NAME}
+        WHERE buildLocation LIKE '%' || :query || '%'
+        LIMIT :pageSize OFFSET :offset
+        """)
+    suspend fun getParsedCabinets(
+        query: String,
+        offset: Int,
+        pageSize: Int
+    ): List<CabinetDb>
 
     @Transaction
     fun updateCabinets(cabinets: List<CabinetDb>) {

@@ -3,30 +3,32 @@ package ru.test.presentation.screen.selection
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
-import ru.test.domain.usecase.GetGroupUseCase
-import ru.test.domain.usecase.ParseDataUseCase
-import ru.test.domain.usecase.SaveGroupIdUseCase
-import ru.test.presentation.mappers.GroupToUiMapper
-import ru.test.presentation.models.GroupUi
+import ru.test.domain.model.EntityType
+import ru.test.domain.usecase.GetEntityListByTypeUseCase
+import ru.test.domain.usecase.SaveTimetableConfigUseCase
+import ru.test.presentation.mappers.EntityToUiMapper
+import ru.test.presentation.models.MenuItem
 import javax.inject.Inject
 
 @HiltViewModel
 class SelectionViewModel @Inject constructor(
-    private val parseDataUseCase: ParseDataUseCase,
-    private val getGroupUseCase: GetGroupUseCase,
-    private val saveGroupIdUseCase: SaveGroupIdUseCase,
-    private val groupToUiMapper: GroupToUiMapper,
+    private val getEntityListByTypeUseCase: GetEntityListByTypeUseCase,
+    private val saveTimetableConfigUseCase: SaveTimetableConfigUseCase,
+    private val groupToUiMapper: EntityToUiMapper,
 ) : ViewModel() {
 
     private val _query: MutableStateFlow<String> = MutableStateFlow("")
-    private val _groups: MutableStateFlow<List<GroupUi>> = MutableStateFlow(emptyList())
-    val groups: StateFlow<List<GroupUi>> = _groups.asStateFlow()
+    private val _type: MutableStateFlow<EntityType> = MutableStateFlow(EntityType.GROUP)
+
+    private val _menuEntities: MutableStateFlow<List<MenuItem>> = MutableStateFlow(emptyList())
+    val menuEntities: StateFlow<List<MenuItem>> = _menuEntities.asStateFlow()
 
     private var currentPage = 0
     private val pageSize = 20
@@ -34,6 +36,7 @@ class SelectionViewModel @Inject constructor(
 
     init {
         observeQuery()
+        observeType()
         loadNextPage()
     }
 
@@ -41,13 +44,27 @@ class SelectionViewModel @Inject constructor(
         _query.value = query
     }
 
+    fun setType(type: EntityType) {
+        _type.value = type
+    }
+
+    @OptIn(FlowPreview::class)
     private fun observeQuery() {
         viewModelScope.launch {
             _query.debounce(300)
                 .distinctUntilChanged()
                 .collect { newQuery ->
                     resetPagination()
-                    loadNextPage(newQuery)
+                    loadNextPage(query = newQuery)
+                }
+        }
+    }
+
+    private fun observeType() {
+        viewModelScope.launch {
+            _type.collect { newType ->
+                    resetPagination()
+                    loadNextPage(type = newType)
                 }
         }
     }
@@ -55,31 +72,35 @@ class SelectionViewModel @Inject constructor(
     private fun resetPagination() {
         currentPage = 0
         isLastPage = false
-        _groups.value = emptyList()
+        _menuEntities.value = emptyList()
     }
 
-    fun loadNextPage(query: String = _query.value) {
+    fun loadNextPage(
+        query: String = _query.value,
+        type: EntityType = _type.value
+    ) {
         if (isLastPage) return
-
-        println(currentPage)
 
         viewModelScope.launch {
             val offset = currentPage * pageSize
-            val newItems = getGroupUseCase(query, offset, pageSize)
+            val newItems = getEntityListByTypeUseCase(query, offset, pageSize, type)
                 .map { groupToUiMapper.invoke(it) }
 
             if (newItems.isEmpty()) {
                 isLastPage = true
             } else {
-                _groups.value += newItems
+                _menuEntities.value += newItems
                 currentPage++
             }
         }
     }
 
-    fun saveGroupId(groupId: Int) {
+    fun saveTimetableId(timetableId: Int) {
         viewModelScope.launch {
-            saveGroupIdUseCase(groupId = groupId)
+            saveTimetableConfigUseCase(
+                timetableId = timetableId,
+                entityType = _type.value
+            )
         }
     }
 }

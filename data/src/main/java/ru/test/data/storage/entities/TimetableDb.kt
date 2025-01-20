@@ -2,8 +2,6 @@ package ru.test.data.storage.entities
 
 import androidx.room.Embedded
 import androidx.room.Entity
-import androidx.room.ForeignKey
-import androidx.room.Junction
 import androidx.room.PrimaryKey
 import androidx.room.Relation
 import ru.test.data.storage.entities.DayDb.Companion.DAYS_TABLE_NAME

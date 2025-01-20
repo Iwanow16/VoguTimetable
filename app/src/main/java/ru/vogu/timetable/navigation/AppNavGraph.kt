@@ -31,7 +31,7 @@ fun AppNavGraph(
 
         composable(route = Screen.Timetable.route) {
             TimetableScreen {
-                navController.navigate(Screen.Timetable.route) {
+                navController.navigate(Screen.GroupSelection.route) {
                     popUpTo(Screen.GroupSelection.route) { inclusive = true }
                 }
             }

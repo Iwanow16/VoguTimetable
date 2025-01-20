@@ -14,7 +14,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -23,19 +22,20 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.filter
-import ru.test.presentation.screen.selection.SelectionViewModel
+import ru.test.presentation.models.MenuItem
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchDropdownMenu(
+fun PagedSearchDropdownMenu(
     modifier: Modifier = Modifier,
     label: String,
-    viewModel: SelectionViewModel,
-    onItemSelected: (Int) -> Unit
+    items: List<MenuItem>,
+    onSearchQueryChange: (String) -> Unit,
+    onItemSelected: (Int) -> Unit,
+    onLoadNextPage: () -> Unit,
 ) {
-    val items by viewModel.groups.collectAsState()
     var expanded by remember { mutableStateOf(false) }
-    var searchQuery by remember { mutableStateOf("") }
+    var selectedText by remember { mutableStateOf("") }
     val scrollState = rememberScrollState()
 
     ExposedDropdownMenuBox(
@@ -43,10 +43,10 @@ fun SearchDropdownMenu(
         onExpandedChange = { expanded = it },
     ) {
         OutlinedTextField(
-            value = searchQuery,
-            onValueChange = {
-                searchQuery = it
-                viewModel.setQuery(it)
+            value = selectedText,
+            onValueChange = { newQuery ->
+                selectedText = newQuery
+                onSearchQueryChange(newQuery)
             },
             label = { Text(label) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
@@ -70,7 +70,7 @@ fun SearchDropdownMenu(
                     DropdownMenuItem(
                         text = { Text(item.name) },
                         onClick = {
-                            searchQuery = item.name
+                            selectedText = item.name
                             expanded = false
                             onItemSelected(item.id)
                         },
@@ -85,7 +85,7 @@ fun SearchDropdownMenu(
                         scrollValue >= (scrollState.maxValue - scrollState.maxValue * 0.2f)
                     }
                     .collect {
-                        viewModel.loadNextPage()
+                        onLoadNextPage()
                     }
             }
         }

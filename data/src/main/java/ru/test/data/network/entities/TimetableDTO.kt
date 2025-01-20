@@ -6,7 +6,7 @@ data class TimetableDTO(
     @SerializedName("title") val title: String,
     @SerializedName("search_for") val searchFor: String,
     @SerializedName("schedule") val schedule: List<WeekDTO>,
-    @SerializedName("last_update") val lastUpdate: String,
+    @SerializedName("last_update") val lastUpdate: String?,
     @SerializedName("examination_session") val examinationSession: String?,
     @SerializedName("pedagogical_practice") val pedagogicalPractice: String?,
 )

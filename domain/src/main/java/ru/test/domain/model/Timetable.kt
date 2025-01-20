@@ -1,5 +1,10 @@
 package ru.test.domain.model
 
+data class Timetable(
+    val name: String,
+    val weeks: List<Week>
+)
+
 data class Week(
     val days: Map<Int, Day>,
     val type: String

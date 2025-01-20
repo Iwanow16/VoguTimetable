@@ -6,18 +6,23 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
 import ru.vogu.timetable.navigation.AppNavGraph
-import ru.vogu.timetable.ui.theme.VoguTimetableTheme
+import ru.vogu.timetable.navigation.Screen
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -32,7 +37,7 @@ class MainActivity : ComponentActivity() {
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     topBar = {
-                        AppTopBar()
+                        AppTopBar(navController)
                     }
                 ) { innerPadding ->
                     AppNavGraph(
@@ -47,6 +52,32 @@ class MainActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AppTopBar() {
-    TopAppBar(title = { Text("Simple Top Bar") })
+fun AppTopBar(navController: NavController) {
+    val backStackEntry = navController.currentBackStackEntryAsState().value
+    val currentRoute = backStackEntry?.destination?.route
+
+    when (currentRoute) {
+        Screen.GroupSelection.route -> {
+            TopAppBar(
+                title = { Text("Расписание") }
+            )
+        }
+        Screen.Timetable.route -> {
+            TopAppBar(
+                title = { Text("Расписание") },
+                navigationIcon = {
+                    IconButton(
+                        onClick = {
+                            navController.navigate(Screen.GroupSelection.route) {
+                                popUpTo(Screen.GroupSelection.route) { inclusive = true }
+                            }
+                        }
+                    ) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "back")
+                    }
+                }
+            )
+        }
+    }
+
 }

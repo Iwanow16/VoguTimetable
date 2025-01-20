@@ -1,15 +1,18 @@
 package ru.test.data.network.repository
 
-import android.text.Html
 import kotlinx.coroutines.flow.firstOrNull
 import ru.test.data.network.mappers.WeekDtoToDbMapper
 import ru.test.data.network.services.VoguService
 import ru.test.data.network.utils.InternetChecker
 import ru.test.data.storage.dao.VoguDao
+import ru.test.data.storage.entities.domainToDto
+import ru.test.data.storage.mappers.CabinetDbToDomainMapper
 import ru.test.data.storage.mappers.GroupDbToDomainMapper
+import ru.test.data.storage.mappers.TeacherDbToDomainMapper
 import ru.test.data.storage.mappers.WeekDbToDomainMapper
 import ru.test.data.storage.store.VoguStore
-import ru.test.domain.model.Group
+import ru.test.domain.model.EntityItem
+import ru.test.domain.model.EntityType
 import ru.test.domain.model.Week
 import ru.test.domain.repository.VoguRepository
 import javax.inject.Inject
@@ -21,12 +24,14 @@ class VoguRepositoryImpl @Inject constructor(
     private val weekDtoToDbMapper: WeekDtoToDbMapper,
     private val weekDbToDomainMapper: WeekDbToDomainMapper,
     private val groupDbToDomainMapper: GroupDbToDomainMapper,
+    private val teacherDbToDomainMapper: TeacherDbToDomainMapper,
+    private val cabinetDbToDomainMapper: CabinetDbToDomainMapper,
     private val internetChecker: InternetChecker
 ) : VoguRepository {
 
-    private fun decodeHtml(encodedString: String): String {
-        return Html.fromHtml(encodedString, Html.FROM_HTML_MODE_LEGACY).toString()
-    }
+//    private fun decodeHtml(encodedString: String): String {
+//        return Html.fromHtml(encodedString, Html.FROM_HTML_MODE_LEGACY).toString()
+//    }
 
     override suspend fun parseData() {
         /*
@@ -74,26 +79,56 @@ class VoguRepositoryImpl @Inject constructor(
                 }*/
     }
 
-    override suspend fun saveGroupId(groupId: Int) {
-        voguStore.saveGroupId(groupId = groupId)
+    override suspend fun saveTimetableConfig(
+        timetableId: Int,
+        type: EntityType
+    ) {
+        voguStore.saveTimetableId(timetableId)
+        voguStore.saveTimetableType(type.domainToDto().type)
     }
 
     override suspend fun clearGroupId() {
-        voguStore.deleteGroupId()
+        voguStore.deleteTimetableId()
     }
 
-    override suspend fun getGroupsPaged(
+    override suspend fun getEntitiesByTypePaged(
         query: String,
         offset: Int,
-        pageSize: Int
-    ): List<Group> {
-        return groupDbToDomainMapper.invoke(
-            voguDao.getAllGroups(
-                query = query,
-                offset = offset,
-                pageSize = pageSize
-            )
-        )
+        pageSize: Int,
+        type: EntityType
+    ): List<EntityItem> {
+
+        return when (type) {
+            EntityType.TEACHER -> {
+                teacherDbToDomainMapper.invoke(
+                    voguDao.getParsedTeachers(
+                        query = query,
+                        offset = offset,
+                        pageSize = pageSize
+                    )
+                )
+            }
+
+            EntityType.GROUP -> {
+                groupDbToDomainMapper.invoke(
+                    voguDao.getParsedGroups(
+                        query = query,
+                        offset = offset,
+                        pageSize = pageSize
+                    )
+                )
+            }
+
+            EntityType.CABINET -> {
+                cabinetDbToDomainMapper(
+                    voguDao.getParsedCabinets(
+                        query = query,
+                        offset = offset,
+                        pageSize = pageSize
+                    )
+                )
+            }
+        }
     }
 
     override suspend fun getTimetableForGroup(
@@ -107,25 +142,22 @@ class VoguRepositoryImpl @Inject constructor(
             voguDao.deleteAllDays()
             voguDao.deleteAllLessons()
 
-            val groupId = voguStore.groupId.firstOrNull()
+            val timetableIdId = voguStore.timetableId.firstOrNull()
+            val timetableType = voguStore.timetableType.firstOrNull()
 
             val requestBody = mapOf(
-                "group_id" to groupId.toString(),
+                timetableType.toString() to timetableIdId.toString(),
                 "date_start" to dateStart,
                 "date_end" to dateEnd,
                 "selected_lesson_type" to "typical"
             )
 
-            try {
-                voguService.getToken()
+            voguService.getToken()
 
-                val response = voguService.getTimetable(requestBody).schedule
-                voguDao.insertWeeksWithDaysAndLessons(
-                    weekDtoToDbMapper.invoke(response)
-                )
-            } catch (e: Exception) {
-                println(e.stackTrace)
-            }
+            val response = voguService.getTimetable(requestBody).schedule
+            voguDao.insertWeeksWithDaysAndLessons(
+                weekDtoToDbMapper.invoke(response)
+            )
         }
 
         return weekDbToDomainMapper.invoke(voguDao.getWeek())

@@ -1,6 +1,6 @@
 package ru.test.presentation.models
 
-data class GroupUi(
+data class MenuItem(
     val id: Int,
     val name: String
 )
