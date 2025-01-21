@@ -1,4 +1,4 @@
-package ru.test.domain.model
+package ru.test.domain.models
 
 data class EntityItem(
     val id: Int,

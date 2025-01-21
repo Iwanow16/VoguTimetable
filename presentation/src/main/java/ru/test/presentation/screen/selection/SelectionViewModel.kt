@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
-import ru.test.domain.model.EntityType
+import ru.test.domain.models.EntityType
 import ru.test.domain.usecase.GetEntityListByTypeUseCase
 import ru.test.domain.usecase.SaveTimetableConfigUseCase
 import ru.test.presentation.mappers.EntityToUiMapper

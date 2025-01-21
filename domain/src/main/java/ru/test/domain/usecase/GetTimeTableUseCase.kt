@@ -1,6 +1,6 @@
 package ru.test.domain.usecase
 
-import ru.test.domain.model.Week
+import ru.test.domain.models.Week
 import ru.test.domain.repository.VoguRepository
 import java.text.SimpleDateFormat
 import java.util.Calendar

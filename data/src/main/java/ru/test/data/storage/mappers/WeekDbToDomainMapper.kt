@@ -1,9 +1,9 @@
 package ru.test.data.storage.mappers
 
 import ru.test.data.storage.entities.WeekWithDaysAndLessons
-import ru.test.domain.model.Day
-import ru.test.domain.model.Lesson
-import ru.test.domain.model.Week
+import ru.test.domain.models.Day
+import ru.test.domain.models.Lesson
+import ru.test.domain.models.Week
 import javax.inject.Inject
 
 class WeekDbToDomainMapper @Inject constructor() : (List<WeekWithDaysAndLessons>) -> List<Week> {

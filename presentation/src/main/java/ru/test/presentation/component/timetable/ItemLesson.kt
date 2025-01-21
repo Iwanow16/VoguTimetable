@@ -1,4 +1,4 @@
-package ru.test.presentation.component
+package ru.test.presentation.component.timetable
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

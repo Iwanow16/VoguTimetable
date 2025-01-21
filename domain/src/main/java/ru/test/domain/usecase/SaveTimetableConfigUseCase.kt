@@ -1,6 +1,6 @@
 package ru.test.domain.usecase
 
-import ru.test.domain.model.EntityType
+import ru.test.domain.models.EntityType
 import ru.test.domain.repository.VoguRepository
 import javax.inject.Inject
 

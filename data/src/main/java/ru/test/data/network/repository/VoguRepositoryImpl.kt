@@ -11,9 +11,9 @@ import ru.test.data.storage.mappers.GroupDbToDomainMapper
 import ru.test.data.storage.mappers.TeacherDbToDomainMapper
 import ru.test.data.storage.mappers.WeekDbToDomainMapper
 import ru.test.data.storage.store.VoguStore
-import ru.test.domain.model.EntityItem
-import ru.test.domain.model.EntityType
-import ru.test.domain.model.Week
+import ru.test.domain.models.EntityItem
+import ru.test.domain.models.EntityType
+import ru.test.domain.models.Week
 import ru.test.domain.repository.VoguRepository
 import javax.inject.Inject
 

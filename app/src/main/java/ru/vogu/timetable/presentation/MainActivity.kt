@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -16,9 +17,12 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
 import ru.vogu.timetable.navigation.AppNavGraph
@@ -26,6 +30,7 @@ import ru.vogu.timetable.navigation.Screen
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -34,15 +39,18 @@ class MainActivity : ComponentActivity() {
 
                 val navController = rememberNavController()
 
+                var topBarTitle by remember { mutableStateOf("") }
+
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     topBar = {
-                        AppTopBar(navController)
+                        NavigationTopBar(topBarTitle, navController)
                     }
                 ) { innerPadding ->
                     AppNavGraph(
                         navController = navController,
-                        modifier = Modifier.padding(innerPadding)
+                        onSetTopBarTitle = { topBarTitle = it },
+                        modifier = Modifier.padding(innerPadding),
                     )
                 }
             }
@@ -52,32 +60,52 @@ class MainActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AppTopBar(navController: NavController) {
-    val backStackEntry = navController.currentBackStackEntryAsState().value
-    val currentRoute = backStackEntry?.destination?.route
+fun NavigationTopBar(
+    title: String,
+    navController: NavController
+) {
 
-    when (currentRoute) {
-        Screen.GroupSelection.route -> {
-            TopAppBar(
-                title = { Text("Расписание") }
-            )
-        }
-        Screen.Timetable.route -> {
-            TopAppBar(
-                title = { Text("Расписание") },
-                navigationIcon = {
-                    IconButton(
-                        onClick = {
-                            navController.navigate(Screen.GroupSelection.route) {
-                                popUpTo(Screen.GroupSelection.route) { inclusive = true }
-                            }
-                        }
-                    ) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "back")
+    var canPop by remember { mutableStateOf(false) }
+    var currentRoute by remember { mutableStateOf("") }
+
+    navController.addOnDestinationChangedListener { controller, destination, _ ->
+        canPop = controller.previousBackStackEntry != null
+        currentRoute = destination.route ?: ""
+    }
+
+    TopAppBar(
+        title = {
+            Text(text = title)
+        },
+        navigationIcon = {
+            if (canPop) {
+                IconButton(
+                    onClick = {
+                        navController.popBackStack()
+                    },
+                    content = {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = null
+                        )
                     }
+                )
+            }
+        },
+        actions = {
+            IconButton(
+                onClick = {
+                    if (navController.currentDestination?.route != Screen.Settings.route) {
+                        navController.navigate(Screen.Settings.route)
+                    }
+                },
+                content = {
+                    Icon(
+                        imageVector = Icons.Filled.Settings,
+                        contentDescription = null
+                    )
                 }
             )
         }
-    }
-
+    )
 }

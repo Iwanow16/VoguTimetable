@@ -1,4 +1,4 @@
-package ru.test.presentation.component
+package ru.test.presentation.component.selection
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth

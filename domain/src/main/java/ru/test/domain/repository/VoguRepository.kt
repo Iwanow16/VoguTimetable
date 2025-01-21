@@ -1,8 +1,8 @@
 package ru.test.domain.repository
 
-import ru.test.domain.model.EntityType
-import ru.test.domain.model.EntityItem
-import ru.test.domain.model.Week
+import ru.test.domain.models.EntityType
+import ru.test.domain.models.EntityItem
+import ru.test.domain.models.Week
 
 interface VoguRepository {
 

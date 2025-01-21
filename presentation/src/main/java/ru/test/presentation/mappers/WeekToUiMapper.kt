@@ -1,8 +1,8 @@
 package ru.test.presentation.mappers
 
-import ru.test.domain.model.Day
-import ru.test.domain.model.Lesson
-import ru.test.domain.model.Week
+import ru.test.domain.models.Day
+import ru.test.domain.models.Lesson
+import ru.test.domain.models.Week
 import ru.test.presentation.models.DayUi
 import ru.test.presentation.models.LessonUi
 import ru.test.presentation.models.WeekUi

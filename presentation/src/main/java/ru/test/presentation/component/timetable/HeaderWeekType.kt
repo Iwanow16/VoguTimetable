@@ -1,4 +1,4 @@
-package ru.test.presentation.component
+package ru.test.presentation.component.timetable
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding

@@ -2,15 +2,17 @@ package ru.test.presentation.screen.selection
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -23,16 +25,21 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import kotlinx.coroutines.launch
-import ru.test.domain.model.EntityType
-import ru.test.presentation.component.PagedSearchDropdownMenu
+import ru.test.domain.models.EntityType
+import ru.test.presentation.component.selection.PagedSearchDropdownMenu
 import ru.test.presentation.models.DropDownMenuInfo
 
 @Composable
 fun SelectionScreen(
     modifier: Modifier = Modifier,
     viewModel: SelectionViewModel = hiltViewModel<SelectionViewModel>(),
+    onSetTopBarTitle: (String) -> Unit = {},
     onTimetableClick: (groupId: Int) -> Unit = {},
 ) {
+
+    LaunchedEffect(Unit) {
+        onSetTopBarTitle("Расписание")
+    }
 
     val items by viewModel.menuEntities.collectAsState()
 
@@ -46,6 +53,13 @@ fun SelectionScreen(
             DropDownMenuInfo("Кабинет")
         )
     }
+    val selectedButton = remember {
+        listOf(
+            SelectionButton("Группа", EntityType.GROUP, 0),
+            SelectionButton("Преподаватель", EntityType.TEACHER, 1),
+            SelectionButton("Аудитория", EntityType.CABINET, 2)
+        )
+    }
 
     val pagerState = rememberPagerState(
         pageCount = { selectedItemType.size },
@@ -53,54 +67,26 @@ fun SelectionScreen(
 
     Column(modifier = modifier.padding(16.dp)) {
 
-        Row(
+        LazyRow(
             modifier = modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            TextButton(
-                content = {
-                    Text(
-                        text = "Группа",
-                        textAlign = TextAlign.Center
-                    )
-                },
-                onClick = {
-                    viewModel.setType(EntityType.GROUP)
-                    coroutineScope.launch {
-                        pagerState.scrollToPage(0)
+            items(selectedButton) { button ->
+                TextButton(
+                    content = {
+                        Text(
+                            text = button.name,
+                            textAlign = TextAlign.Center
+                        )
+                    },
+                    onClick = {
+                        viewModel.setType(button.type)
+                        coroutineScope.launch {
+                            pagerState.scrollToPage(button.page)
+                        }
                     }
-                }
-            )
-
-            TextButton(
-                content = {
-                    Text(
-                        text = "Преподаватель",
-                        textAlign = TextAlign.Center
-                    )
-                },
-                onClick = {
-                    viewModel.setType(EntityType.TEACHER)
-                    coroutineScope.launch {
-                        pagerState.scrollToPage(1)
-                    }
-                }
-            )
-
-            TextButton(
-                content = {
-                    Text(
-                        text = "Аудитория",
-                        textAlign = TextAlign.Center
-                    )
-                },
-                onClick = {
-                    viewModel.setType(EntityType.CABINET)
-                    coroutineScope.launch {
-                        pagerState.scrollToPage(2)
-                    }
-                }
-            )
+                )
+            }
         }
 
         HorizontalPager(
@@ -129,6 +115,12 @@ fun SelectionScreen(
         )
     }
 }
+
+data class SelectionButton(
+    val name: String,
+    val type: EntityType,
+    val page: Int
+)
 
 @Preview(showBackground = true)
 @Composable

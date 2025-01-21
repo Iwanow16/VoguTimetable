@@ -2,12 +2,18 @@ package ru.test.presentation.screen.timetable
 
 import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -18,12 +24,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import ru.test.presentation.component.EmptyLessonItem
-import ru.test.presentation.component.HeaderDayDate
-import ru.test.presentation.component.HeaderWeekType
-import ru.test.presentation.component.ItemLesson
+import ru.test.presentation.component.timetable.EmptyLessonItem
+import ru.test.presentation.component.timetable.HeaderDayDate
+import ru.test.presentation.component.timetable.HeaderWeekType
+import ru.test.presentation.component.timetable.ItemLesson
 import ru.test.presentation.models.WeekUi
 import ru.test.presentation.utils.State
 import java.time.LocalDate
@@ -32,8 +42,13 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun TimetableScreen(
     viewModel: TimetableViewModel = hiltViewModel<TimetableViewModel>(),
-    onBackPressed: () -> Unit = {}
+    onSetTopBarTitle: (String) -> Unit = {},
 ) {
+
+    LaunchedEffect(Unit) {
+        onSetTopBarTitle("Расписание")
+    }
+
     val context = LocalContext.current
 
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -48,7 +63,12 @@ fun TimetableScreen(
         }
 
         is State.Success -> {
-            Timetable(timetable = currentState.data)
+            val data = currentState.data
+            if (data.isNotEmpty()) {
+                Timetable(timetable = currentState.data)
+            } else {
+                EmptyTimetable()
+            }
         }
     }
 }
@@ -114,6 +134,27 @@ fun Timetable(timetable: List<WeekUi>) {
                 }
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun EmptyTimetable() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .wrapContentSize(Alignment.Center),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(text = "T-T", fontSize = 128.sp)
+
+        Text(
+            text = "Упс! Расписание не подгрузилось. Попробуй еще раз.",
+            style = MaterialTheme.typography.bodySmall,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(top = 16.dp)
+        )
     }
 }
 
