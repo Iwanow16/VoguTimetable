@@ -1,7 +1,7 @@
 package ru.test.data.network.repository
 
 import kotlinx.coroutines.flow.firstOrNull
-import ru.test.data.network.mappers.WeekDtoToDbMapper
+import ru.test.data.network.mappers.timetable.TimetableDtoToDbMapper
 import ru.test.data.network.services.VoguService
 import ru.test.data.network.utils.InternetChecker
 import ru.test.data.storage.dao.VoguDao
@@ -11,9 +11,9 @@ import ru.test.data.storage.mappers.GroupDbToDomainMapper
 import ru.test.data.storage.mappers.TeacherDbToDomainMapper
 import ru.test.data.storage.mappers.WeekDbToDomainMapper
 import ru.test.data.storage.store.VoguStore
-import ru.test.domain.models.EntityItem
-import ru.test.domain.models.EntityType
-import ru.test.domain.models.Week
+import ru.test.domain.models.timetable.EntityItem
+import ru.test.domain.models.timetable.EntityType
+import ru.test.domain.models.timetable.Timetable
 import ru.test.domain.repository.VoguRepository
 import javax.inject.Inject
 
@@ -21,7 +21,7 @@ class VoguRepositoryImpl @Inject constructor(
     private val voguService: VoguService,
     private val voguDao: VoguDao,
     private val voguStore: VoguStore,
-    private val weekDtoToDbMapper: WeekDtoToDbMapper,
+    private val timetableDtoToDbMapper: TimetableDtoToDbMapper,
     private val weekDbToDomainMapper: WeekDbToDomainMapper,
     private val groupDbToDomainMapper: GroupDbToDomainMapper,
     private val teacherDbToDomainMapper: TeacherDbToDomainMapper,
@@ -29,54 +29,8 @@ class VoguRepositoryImpl @Inject constructor(
     private val internetChecker: InternetChecker
 ) : VoguRepository {
 
-//    private fun decodeHtml(encodedString: String): String {
-//        return Html.fromHtml(encodedString, Html.FROM_HTML_MODE_LEGACY).toString()
-//    }
-
     override suspend fun parseData() {
-        /*
-
-                Стоит вынести в отдельный сервис
-                Для создания фоновой задачи и первого заполнения бд
-
-                withContext(Dispatchers.IO) {
-
-                    val url = "https://tt2.vogu35.ru/"
-                    val doc: Document = Jsoup.connect(url).get()
-
-                    // Get json
-                    val jsonGroups = decodeHtml(doc.getElementById("jsonGroups").attr("data-json"))
-                    val jsonTeachers = decodeHtml(doc.getElementById("jsonTeachers").attr("data-json"))
-                    val jsonLocations = decodeHtml(doc.getElementById("jsonLocations").attr("data-json"))
-
-                    val gson = Gson()
-
-                    // Convert json to data class
-                    val groups = gson.fromJson<List<GroupDb>>(
-                        jsonGroups,
-                        object : TypeToken<List<GroupDb>>() {}.type
-                    )
-
-                    val teachers = gson.fromJson<List<TeacherDb>>(
-                        jsonTeachers,
-                        object : TypeToken<List<TeacherDb>>() {}.type
-                    )
-
-                    val cabinets = gson.fromJson<List<CabinetDb>>(
-                        jsonLocations,
-                        object : TypeToken<List<CabinetDb>>() {}.type
-                    )
-
-                    // Clear db
-                    voguDao.deleteAllGroups()
-                    voguDao.deleteAllTeachers()
-                    voguDao.deleteAllCabinets()
-
-                    // Insert db
-                    voguDao.insertGroups(groups)
-                    voguDao.insertTeachers(teachers)
-                    voguDao.insertCabinets(cabinets)
-                }*/
+       TODO("Удалить эту функцию")
     }
 
     override suspend fun saveTimetableConfig(
@@ -134,19 +88,24 @@ class VoguRepositoryImpl @Inject constructor(
     override suspend fun getTimetableForGroup(
         dateStart: String,
         dateEnd: String
-    ): List<Week> {
+    ): Timetable {
+
+        var isOffline = true
 
         if (internetChecker.isInternetAvailable()) {
 
+            isOffline = false
+
+            voguDao.deleteAllTimetables()
             voguDao.deleteAllWeeks()
             voguDao.deleteAllDays()
             voguDao.deleteAllLessons()
 
-            val timetableIdId = voguStore.timetableId.firstOrNull()
+            val timetableId = voguStore.timetableId.firstOrNull()
             val timetableType = voguStore.timetableType.firstOrNull()
 
             val requestBody = mapOf(
-                timetableType.toString() to timetableIdId.toString(),
+                timetableType.toString() to timetableId.toString(),
                 "date_start" to dateStart,
                 "date_end" to dateEnd,
                 "selected_lesson_type" to "typical"
@@ -154,12 +113,19 @@ class VoguRepositoryImpl @Inject constructor(
 
             voguService.getToken()
 
-            val response = voguService.getTimetable(requestBody).schedule
+            val response = voguService.getTimetable(requestBody)
+
             voguDao.insertWeeksWithDaysAndLessons(
-                weekDtoToDbMapper.invoke(response)
+                timetableDtoToDbMapper.invoke(
+                    timetable = response,
+                    timetableId = timetableId!! // <--- Придумай способ исправить это (!!)
+                )
             )
         }
 
-        return weekDbToDomainMapper.invoke(voguDao.getWeek())
+        return weekDbToDomainMapper.invoke(
+            timetable = voguDao.getTimetable(),
+            isOffline = isOffline
+        )
     }
 }

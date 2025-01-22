@@ -25,7 +25,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import kotlinx.coroutines.launch
-import ru.test.domain.models.EntityType
+import ru.test.domain.models.timetable.EntityType
 import ru.test.presentation.component.selection.PagedSearchDropdownMenu
 import ru.test.presentation.models.DropDownMenuInfo
 

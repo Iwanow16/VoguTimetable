@@ -1,4 +1,4 @@
-package ru.test.data.network.entities
+package ru.test.data.network.entities.timetable
 
 import com.google.gson.annotations.SerializedName
 
@@ -12,7 +12,7 @@ data class TimetableDTO(
 )
 
 data class WeekDTO(
-    val weeks: Map<String, DayDTO>,
+    val days: Map<String, DayDTO>,
     val type: String
 )
 

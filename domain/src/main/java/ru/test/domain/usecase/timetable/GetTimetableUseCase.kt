@@ -1,17 +1,17 @@
-package ru.test.domain.usecase
+package ru.test.domain.usecase.timetable
 
-import ru.test.domain.models.Week
+import ru.test.domain.models.timetable.Timetable
 import ru.test.domain.repository.VoguRepository
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 import javax.inject.Inject
 
-class GetTimeTableUseCase @Inject constructor(
+class GetTimetableUseCase @Inject constructor(
     private val repository: VoguRepository
 ) {
 
-    suspend operator fun invoke(): List<Week> {
+    suspend operator fun invoke(): Timetable {
         val calendar = Calendar.getInstance()
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 

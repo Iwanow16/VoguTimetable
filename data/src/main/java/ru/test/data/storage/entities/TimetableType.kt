@@ -1,6 +1,6 @@
 package ru.test.data.storage.entities
 
-import ru.test.domain.models.EntityType
+import ru.test.domain.models.timetable.EntityType
 
 enum class TimetableType(val type: String) {
     GROUP("group_id"),

@@ -6,11 +6,23 @@ import androidx.room.PrimaryKey
 import androidx.room.Relation
 import ru.test.data.storage.entities.DayDb.Companion.DAYS_TABLE_NAME
 import ru.test.data.storage.entities.LessonDb.Companion.LESSONS_TABLE_NAME
+import ru.test.data.storage.entities.TimetableDb.Companion.TIMETABLE_TABLE_NAME
 import ru.test.data.storage.entities.WeekDb.Companion.WEEKS_TABLE_NAME
+
+@Entity(tableName = TIMETABLE_TABLE_NAME)
+data class TimetableDb(
+    @PrimaryKey val timetableId: Int,
+    val groupName: String
+) {
+    companion object {
+        const val TIMETABLE_TABLE_NAME = "timetable_table"
+    }
+}
 
 @Entity(tableName = WEEKS_TABLE_NAME)
 data class WeekDb(
     @PrimaryKey(autoGenerate = true) val weekId: Int = 0,
+    val parentTimetableId: Int,
     val type: String,
 ) {
     companion object {
@@ -46,6 +58,15 @@ data class LessonDb(
     }
 }
 
+data class TimetableWitchWeeks(
+    @Embedded val timetable: TimetableDb,
+    @Relation(
+        parentColumn = "timetableId",
+        entityColumn = "parentTimetableId"
+    )
+    val weeks: List<WeekDb>
+)
+
 data class WeekWithDays(
     @Embedded val week: WeekDb,
     @Relation(
@@ -62,6 +83,16 @@ data class DayWithLessons(
         entityColumn = "parentDayId"
     )
     val lessons: List<LessonDb>
+)
+
+data class TimetableWithLessons(
+    @Embedded val timetable: TimetableDb,
+    @Relation(
+        entity = WeekDb::class,
+        parentColumn = "timetableId",
+        entityColumn = "parentTimetableId"
+    )
+    val weeks: List<WeekWithDaysAndLessons>
 )
 
 data class WeekWithDaysAndLessons(

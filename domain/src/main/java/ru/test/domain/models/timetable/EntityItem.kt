@@ -1,4 +1,4 @@
-package ru.test.domain.models
+package ru.test.domain.models.timetable
 
 data class EntityItem(
     val id: Int,

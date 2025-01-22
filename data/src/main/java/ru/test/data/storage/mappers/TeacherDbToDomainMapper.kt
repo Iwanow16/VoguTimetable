@@ -1,7 +1,7 @@
 package ru.test.data.storage.mappers
 
 import ru.test.data.storage.entities.TeacherDb
-import ru.test.domain.models.EntityItem
+import ru.test.domain.models.timetable.EntityItem
 import javax.inject.Inject
 
 class TeacherDbToDomainMapper @Inject constructor() : (List<TeacherDb>) -> List<EntityItem> {

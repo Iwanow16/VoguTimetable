@@ -45,10 +45,6 @@ fun TimetableScreen(
     onSetTopBarTitle: (String) -> Unit = {},
 ) {
 
-    LaunchedEffect(Unit) {
-        onSetTopBarTitle("Расписание")
-    }
-
     val context = LocalContext.current
 
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -64,8 +60,15 @@ fun TimetableScreen(
 
         is State.Success -> {
             val data = currentState.data
-            if (data.isNotEmpty()) {
-                Timetable(timetable = currentState.data)
+
+            if (data.isOffline) {
+                onSetTopBarTitle("Оффлайн просмотр: \n ${data.groupName}")
+            } else {
+                onSetTopBarTitle(data.groupName)
+            }
+
+            if (data.weeks.isNotEmpty()) {
+                Timetable(timetable = data.weeks)
             } else {
                 EmptyTimetable()
             }
@@ -89,7 +92,7 @@ fun Timetable(timetable: List<WeekUi>) {
         timetable.forEach { week ->
             index++
 
-            week.days.forEach { (_, day) ->
+            week.days.forEach { day ->
                 if (day.date == todayDate) {
                     targetIndex = index
                 }
@@ -120,7 +123,7 @@ fun Timetable(timetable: List<WeekUi>) {
                 )
             }
 
-            week.days.forEach { (_, day) ->
+            week.days.forEach { day ->
                 item {
                     HeaderDayDate(date = day.date, isToday = day.date == todayDate)
                 }

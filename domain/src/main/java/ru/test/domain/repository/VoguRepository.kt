@@ -1,11 +1,10 @@
 package ru.test.domain.repository
 
-import ru.test.domain.models.EntityType
-import ru.test.domain.models.EntityItem
-import ru.test.domain.models.Week
+import ru.test.domain.models.timetable.EntityItem
+import ru.test.domain.models.timetable.EntityType
+import ru.test.domain.models.timetable.Timetable
 
 interface VoguRepository {
-
     suspend fun parseData()
 
     suspend fun saveTimetableConfig(
@@ -22,5 +21,8 @@ interface VoguRepository {
         type: EntityType
     ): List<EntityItem>
 
-    suspend fun getTimetableForGroup(dateStart: String, dateEnd: String): List<Week>
+    suspend fun getTimetableForGroup(
+        dateStart: String,
+        dateEnd: String
+    ): Timetable
 }

@@ -1,4 +1,4 @@
-package ru.test.domain.usecase
+package ru.test.domain.usecase.timetable
 
 import ru.test.domain.repository.VoguRepository
 import javax.inject.Inject

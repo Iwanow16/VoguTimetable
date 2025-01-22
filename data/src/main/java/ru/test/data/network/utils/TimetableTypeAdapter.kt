@@ -4,10 +4,10 @@ import com.google.gson.TypeAdapter
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonToken
 import com.google.gson.stream.JsonWriter
-import ru.test.data.network.entities.DayDTO
-import ru.test.data.network.entities.LessonDTO
-import ru.test.data.network.entities.TimetableDTO
-import ru.test.data.network.entities.WeekDTO
+import ru.test.data.network.entities.timetable.DayDTO
+import ru.test.data.network.entities.timetable.LessonDTO
+import ru.test.data.network.entities.timetable.TimetableDTO
+import ru.test.data.network.entities.timetable.WeekDTO
 
 class TimetableTypeAdapter : TypeAdapter<TimetableDTO>() {
     override fun write(out: JsonWriter, value: TimetableDTO?) {
@@ -89,7 +89,7 @@ class TimetableTypeAdapter : TypeAdapter<TimetableDTO>() {
         }
 
         reader.endObject()
-        return WeekDTO(weeks = days, type = "") // Тип недели будет установлен позже
+        return WeekDTO(days = days, type = "") // Тип недели будет установлен позже
     }
 
     private fun readDay(reader: JsonReader): DayDTO {

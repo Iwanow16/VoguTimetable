@@ -1,41 +1,48 @@
 package ru.test.data.storage.mappers
 
+import ru.test.data.storage.entities.DayWithLessons
+import ru.test.data.storage.entities.LessonDb
+import ru.test.data.storage.entities.TimetableWithLessons
 import ru.test.data.storage.entities.WeekWithDaysAndLessons
-import ru.test.domain.models.Day
-import ru.test.domain.models.Lesson
-import ru.test.domain.models.Week
+import ru.test.domain.models.timetable.Day
+import ru.test.domain.models.timetable.Lesson
+import ru.test.domain.models.timetable.Timetable
+import ru.test.domain.models.timetable.Week
 import javax.inject.Inject
 
-class WeekDbToDomainMapper @Inject constructor() : (List<WeekWithDaysAndLessons>) -> List<Week> {
+class WeekDbToDomainMapper @Inject constructor() : (TimetableWithLessons, Boolean) -> Timetable {
 
-    override fun invoke(weeks: List<WeekWithDaysAndLessons>): List<Week> {
-        return weeks.map { weekWithDaysAndLessons ->
-            val week = weekWithDaysAndLessons.week
-            val daysMap = weekWithDaysAndLessons.days.associateBy(
-                { it.day.dayId },
-                { dayWithLessons ->
-                    Day(
-                        lessons = dayWithLessons.lessons.map { lessonDb ->
-                            Lesson(
-                                time = lessonDb.time,
-                                type = lessonDb.type,
-                                location = lessonDb.location,
-                                teacher = lessonDb.teacher,
-                                subject = lessonDb.subject,
-                                subgroup = lessonDb.subgroup,
-                                group = lessonDb.group,
-                                id = lessonDb.id
-                            )
-                        },
-                        date = dayWithLessons.day.date
-                    )
-                }
-            )
+    override fun invoke(
+        timetable: TimetableWithLessons,
+        isOffline: Boolean
+    ): Timetable =
+        Timetable(
+            name = timetable.timetable.groupName,
+            weeks = timetable.weeks.map { it.weekDbToDomain() },
+            isOffline = isOffline
+        )
 
-            Week(
-                days = daysMap,
-                type = week.type
-            )
-        }
-    }
+    private fun WeekWithDaysAndLessons.weekDbToDomain(): Week =
+        Week(
+            days = days.map { it.dayDbToDomain() },
+            type = this.week.type
+        )
+
+    private fun DayWithLessons.dayDbToDomain(): Day =
+        Day(
+            lessons = lessons.map { it.lessonDbToDomain() },
+            date = this.day.date
+        )
+
+    private fun LessonDb.lessonDbToDomain(): Lesson =
+        Lesson(
+            time = this.time,
+            type = this.type,
+            location = this.location,
+            teacher = this.teacher,
+            subject = this.subject,
+            subgroup = this.subgroup,
+            group = this.group,
+            id = this.id
+        )
 }

@@ -1,7 +1,7 @@
-package ru.test.domain.usecase
+package ru.test.domain.usecase.timetable
 
-import ru.test.domain.models.EntityType
-import ru.test.domain.models.EntityItem
+import ru.test.domain.models.timetable.EntityItem
+import ru.test.domain.models.timetable.EntityType
 import ru.test.domain.repository.VoguRepository
 import javax.inject.Inject
 

@@ -1,7 +1,13 @@
 package ru.test.presentation.models
 
+data class TimetableUi(
+    val weeks: List<WeekUi>,
+    val groupName: String,
+    val isOffline: Boolean
+)
+
 data class WeekUi(
-    val days: Map<Int, DayUi>,
+    val days: List<DayUi>,
     val type: String
 )
 

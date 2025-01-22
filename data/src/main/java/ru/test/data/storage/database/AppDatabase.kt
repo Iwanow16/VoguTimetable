@@ -8,6 +8,7 @@ import ru.test.data.storage.entities.DayDb
 import ru.test.data.storage.entities.GroupDb
 import ru.test.data.storage.entities.LessonDb
 import ru.test.data.storage.entities.TeacherDb
+import ru.test.data.storage.entities.TimetableDb
 import ru.test.data.storage.entities.WeekDb
 
 @Database(
@@ -15,6 +16,7 @@ import ru.test.data.storage.entities.WeekDb
         GroupDb::class,
         TeacherDb::class,
         CabinetDb::class,
+        TimetableDb::class,
         WeekDb::class,
         DayDb::class,
         LessonDb::class

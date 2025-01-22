@@ -10,9 +10,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
-import ru.test.domain.models.EntityType
-import ru.test.domain.usecase.GetEntityListByTypeUseCase
-import ru.test.domain.usecase.SaveTimetableConfigUseCase
+import ru.test.domain.models.timetable.EntityType
+import ru.test.domain.usecase.timetable.GetEntityListByTypeUseCase
+import ru.test.domain.usecase.timetable.SaveTimetableConfigUseCase
 import ru.test.presentation.mappers.EntityToUiMapper
 import ru.test.presentation.models.MenuItem
 import javax.inject.Inject

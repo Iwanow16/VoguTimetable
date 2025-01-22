@@ -12,7 +12,7 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import ru.test.data.network.entities.TimetableDTO
+import ru.test.data.network.entities.timetable.TimetableDTO
 import ru.test.data.network.services.VoguService
 import ru.test.data.network.utils.TimetableTypeAdapter
 import ru.test.data.storage.store.VoguStore

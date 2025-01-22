@@ -5,14 +5,14 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
-import ru.test.data.network.mappers.InsertWeekModel
 import ru.test.data.storage.entities.CabinetDb
 import ru.test.data.storage.entities.DayDb
 import ru.test.data.storage.entities.GroupDb
 import ru.test.data.storage.entities.LessonDb
 import ru.test.data.storage.entities.TeacherDb
+import ru.test.data.storage.entities.TimetableDb
+import ru.test.data.storage.entities.TimetableWithLessons
 import ru.test.data.storage.entities.WeekDb
-import ru.test.data.storage.entities.WeekWithDaysAndLessons
 
 @Dao
 interface VoguDao {
@@ -20,8 +20,11 @@ interface VoguDao {
     // Timetable
 
     @Transaction
-    @Query("SELECT * FROM ${WeekDb.WEEKS_TABLE_NAME}")
-    fun getWeek(): List<WeekWithDaysAndLessons>
+    @Query("SELECT * FROM ${TimetableDb.TIMETABLE_TABLE_NAME}")
+    fun getTimetable(): TimetableWithLessons
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertTimetable(timetable: TimetableDb): Long
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertWeek(week: WeekDb): Long
@@ -33,19 +36,29 @@ interface VoguDao {
     suspend fun insertLesson(lesson: LessonDb)
 
     @Transaction
-    suspend fun insertWeeksWithDaysAndLessons(weeksWithDaysAndLessons: InsertWeekModel) {
-        weeksWithDaysAndLessons.forEach { (week, daysWithLessons) ->
-            val weekId = insertWeek(week)
-            daysWithLessons.forEach { (day, lessons) ->
-                val newDay = day.copy(parentWeekId = weekId.toInt())
-                val dayId = insertDay(newDay)
+    suspend fun insertWeeksWithDaysAndLessons(
+        timetableWithLessons: TimetableWithLessons
+    ) {
+        val timetable = timetableWithLessons.timetable
+        val weeks = timetableWithLessons.weeks
 
-                lessons.forEach { lesson ->
+        val timetableId = insertTimetable(timetable)
+
+        weeks.forEach { week ->
+            val weekId = insertWeek(week.week.copy(parentTimetableId = timetableId.toInt()))
+
+            week.days.forEach { day ->
+                val dayId = insertDay(day.day.copy(parentWeekId = weekId.toInt()))
+
+                day.lessons.forEach { lesson ->
                     insertLesson(lesson.copy(parentDayId = dayId.toInt()))
                 }
             }
         }
     }
+
+    @Query("DELETE FROM ${TimetableDb.TIMETABLE_TABLE_NAME}")
+    fun deleteAllTimetables()
 
     @Query("DELETE FROM ${WeekDb.WEEKS_TABLE_NAME}")
     fun deleteAllWeeks()
@@ -85,11 +98,13 @@ interface VoguDao {
 
     // Teachers
 
-    @Query("""
+    @Query(
+        """
         SELECT * FROM ${TeacherDb.TEACHERS_TABLE_NAME}
         WHERE name LIKE '%' || :query || '%'
         LIMIT :pageSize OFFSET :offset
-        """)
+        """
+    )
     suspend fun getParsedTeachers(
         query: String,
         offset: Int,
@@ -110,11 +125,13 @@ interface VoguDao {
 
     // Cabinets
 
-    @Query("""
+    @Query(
+        """
         SELECT * FROM ${CabinetDb.CABINETS_TABLE_NAME}
         WHERE buildLocation LIKE '%' || :query || '%'
         LIMIT :pageSize OFFSET :offset
-        """)
+        """
+    )
     suspend fun getParsedCabinets(
         query: String,
         offset: Int,

@@ -1,12 +1,13 @@
-package ru.test.domain.models
+package ru.test.domain.models.timetable
 
 data class Timetable(
     val name: String,
-    val weeks: List<Week>
+    val weeks: List<Week>,
+    val isOffline: Boolean = true
 )
 
 data class Week(
-    val days: Map<Int, Day>,
+    val days: List<Day>,
     val type: String
 )
 
