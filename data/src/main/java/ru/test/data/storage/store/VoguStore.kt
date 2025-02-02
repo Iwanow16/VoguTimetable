@@ -29,18 +29,6 @@ class VoguStore @Inject constructor(
     private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "timetable_settings")
     private val dataStore = context.dataStore
 
-    // TOKEN
-    val csrfToken: Flow<String?> = dataStore.data
-        .map { preferences ->
-            preferences[CSRF_TOKEN]
-        }
-
-    suspend fun saveCsrfToken(token: String) {
-        dataStore.edit { preferences ->
-            preferences[CSRF_TOKEN] = token
-        }
-    }
-
     val timetableId: Flow<Int?> = dataStore.data
         .map { preferences ->
             preferences[GROUP_ID]

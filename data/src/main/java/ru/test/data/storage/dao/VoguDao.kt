@@ -69,6 +69,14 @@ interface VoguDao {
     @Query("DELETE FROM ${LessonDb.LESSONS_TABLE_NAME}")
     fun deleteAllLessons()
 
+    @Transaction
+    fun clearTimetable() {
+        deleteAllTimetables()
+        deleteAllWeeks()
+        deleteAllDays()
+        deleteAllLessons()
+    }
+
     // Groups
 
     @Query(

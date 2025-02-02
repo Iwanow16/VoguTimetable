@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_title_version">Обновление приложения</string>
+
+    <string name="settings_description_checking">Проверка обновлений</string>
+    <string name="settings_description_downloading">Скачивание обновлений</string>
+    <string name="settings_description_install">Обновить приложение</string>
+    <string name="settings_description_installing">Обновление приложения</string>
+    <string name="settings_description_installed">Приложение обновлено</string>
+    <string name="settings_description_new_version">Доступна новая версия: %1$s</string>
+    <string name="settings_description_no_update">Обновления не завезли</string>
+    <string name="settings_description_default">Текущая версия: %1$s</string>
+</resources>

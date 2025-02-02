@@ -5,6 +5,7 @@ import ru.test.domain.models.timetable.EntityType
 import ru.test.domain.models.timetable.Timetable
 
 interface VoguRepository {
+
     suspend fun parseData()
 
     suspend fun saveTimetableConfig(
@@ -21,8 +22,11 @@ interface VoguRepository {
         type: EntityType
     ): List<EntityItem>
 
-    suspend fun getTimetableForGroup(
+    suspend fun getTimetable(
+        timetableId: Int,
+        timetableType: String,
         dateStart: String,
-        dateEnd: String
-    ): Timetable
+        dateEnd: String,
+        isPaging: Boolean
+    ): Result<Timetable>
 }

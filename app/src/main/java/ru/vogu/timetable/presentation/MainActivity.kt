@@ -12,7 +12,6 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -25,8 +24,9 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
+import ru.example.settings.screen.navigation.SETTINGS_SCREEN_ROUTE
+import ru.example.ui_kit.ui.theme.VoguTimetableTheme
 import ru.vogu.timetable.navigation.AppNavGraph
-import ru.vogu.timetable.navigation.Screen
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -35,7 +35,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            MaterialTheme /*VoguTimetableTheme*/ {
+            VoguTimetableTheme(dynamicColor = false) {
 
                 val navController = rememberNavController()
 
@@ -95,8 +95,8 @@ fun NavigationTopBar(
         actions = {
             IconButton(
                 onClick = {
-                    if (navController.currentDestination?.route != Screen.Settings.route) {
-                        navController.navigate(Screen.Settings.route)
+                    if (navController.currentDestination?.route != SETTINGS_SCREEN_ROUTE) {
+                        navController.navigate(SETTINGS_SCREEN_ROUTE)
                     }
                 },
                 content = {

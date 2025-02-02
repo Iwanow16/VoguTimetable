@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="titles_for_menu">
+        <item>Группа</item>
+        <item>Преподаватель</item>
+        <item>Кабинет</item>
+    </string-array>
+
+    <string name="btn_navigate_timetable">Перейти к расписанию</string>
+</resources>

@@ -4,16 +4,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import ru.test.presentation.screen.selection.SelectionScreen
-import ru.test.presentation.screen.settings.SettingsScreen
-import ru.test.presentation.screen.timetable.TimetableScreen
-
-sealed class Screen(val route: String) {
-    data object GroupSelection : Screen("group_selection")
-    data object Timetable : Screen("timetable")
-    data object Settings : Screen("settings")
-}
+import ru.example.selection.screen.navigation.SELECTION_SCREEN_ROUTE
+import ru.example.selection.screen.navigation.selectionScreen
+import ru.example.settings.screen.navigation.settingsScreen
+import ru.example.timetable.screen.navigation.navigateToTimetable
+import ru.example.timetable.screen.navigation.timetableScreen
 
 @Composable
 fun AppNavGraph(
@@ -24,33 +19,17 @@ fun AppNavGraph(
     NavHost(
         modifier = modifier,
         navController = navController,
-        startDestination = Screen.GroupSelection.route,
+        startDestination = SELECTION_SCREEN_ROUTE,
     ) {
-        composable(route = Screen.GroupSelection.route) {
-            SelectionScreen(
-                onSetTopBarTitle = {
-                    onSetTopBarTitle(it)
-                },
-                onTimetableClick = {
-                    navController.navigate(Screen.Timetable.route)
-                }
-            )
-        }
 
-        composable(route = Screen.Timetable.route) {
-            TimetableScreen(
-                onSetTopBarTitle = {
-                    onSetTopBarTitle(it)
-                },
-            )
-        }
+        selectionScreen(
+            navigateToTimetable = { id, type ->
+                navController.navigateToTimetable(id, type)
+            },
+            setTopBarTitle = onSetTopBarTitle
+        )
+        timetableScreen()
 
-        composable(route = Screen.Settings.route) {
-            SettingsScreen(
-                onSetTopBarTitle = {
-                    onSetTopBarTitle(it)
-                }
-            )
-        }
+        settingsScreen()
     }
 }

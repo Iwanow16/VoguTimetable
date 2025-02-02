@@ -9,8 +9,8 @@ import dagger.hilt.components.SingletonComponent
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import ru.test.data.network.mappers.update.ReleaseMapper
-import ru.test.data.network.repository.UpdateRepositoryImpl
 import ru.test.data.network.services.GitHubApiService
+import ru.test.data.repository.UpdateRepositoryImpl
 import ru.test.domain.repository.UpdateRepository
 import javax.inject.Named
 import javax.inject.Singleton
